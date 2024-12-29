@@ -9,8 +9,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.warcards.data.Deck
+import com.example.warcards.data.noFaceCards
+import com.example.warcards.ui.theme.BattleScreen
 import com.example.warcards.ui.theme.WarCardsTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,15 +27,20 @@ class MainActivity : ComponentActivity() {
         setContent {
             WarCardsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+
+
+
+
+                    BattleScreen(modifier = Modifier.padding(innerPadding))
+
+
                 }
             }
         }
     }
 }
+
+
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {

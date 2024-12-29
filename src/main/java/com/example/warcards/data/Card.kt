@@ -17,8 +17,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Icon
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import com.example.warcards.R
 
 data class Card(
@@ -29,17 +33,24 @@ data class Card(
 )
 
 @Composable
-fun CardImage(card: Card)  {
-    Box(modifier = Modifier
-        .size(height = 80.dp, width = 60.dp)
+fun CardImage(card: Card, modifier: Modifier = Modifier)  {
+    Box(modifier = modifier
+        .size(height = 140.dp, width = 100.dp)
         .padding(8.dp)
-        .background(Color.LightGray)
+        .background(Color.Gray)
     ) {
-        Column {
-            Text(text = card.name)
+        Column (
+            modifier = Modifier.padding(8.dp)
+        ){
+            Text(text = card.name,
+                modifier = Modifier.padding(8.dp),
+                textAlign = TextAlign.Center)
             Icon( ImageVector.vectorResource(id = card.suitIcon()),
                 contentDescription = card.name,
-                tint = card.iconColor(card))
+                tint = card.iconColor(card),
+                modifier = Modifier.padding(8.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
         }
 
     }
@@ -70,9 +81,10 @@ fun Card.suitIcon(): Int {
 @Preview(showBackground = true)
 fun PreviewCardImage() {
     val card = Card(1, "Ace of Hearts", "Heart", false)
-    val card2 = Card(5, "Five of Hearts", "Club", false)
+    val card2 = Card(5, "Eight of Diamonds", "Diamond", false)
     Column {
-        CardImage(card)
+        CardImage(card,
+            modifier = Modifier.size(height = 70.dp, width = 50.dp))
         CardImage(card2)
     }
 

@@ -2,7 +2,21 @@ package com.example.warcards.data
 
 data class Deck(
     val card: List<Card>
-)
+) {
+    fun shuffle(): Deck {
+        return Deck(card.shuffled())
+    }
+
+    fun first(): Card {
+        return card.first()
+    }
+
+    fun drop(n: Int): Deck {
+        return Deck(card.drop(n))
+    }
+}
+
+
 val regularDeckWithJoker = Deck(
     listOf(
         Card(1, "Ace of Hearts", "Heart", false),
