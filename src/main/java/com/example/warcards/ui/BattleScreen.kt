@@ -84,6 +84,7 @@ fun BattleScreen(
     var computerScore by remember { mutableIntStateOf(0) }
 
     // Additional state variables
+    // TODO: Fix bug where regular match start off showing remaining cards as 52, not 26.
     var cardsRemaining by remember { mutableIntStateOf(playerDeck.card.size) }
     var isGameOver by remember { mutableStateOf(false) }
     var winner by remember { mutableIntStateOf(0) }
@@ -150,8 +151,8 @@ fun BattleScreen(
     }
 
     fun restart(){
-        playerDeck = Deck(noFaceCards.card.shuffled())
-        computerDeck = Deck(noFaceCards.card.shuffled())
+        playerDeck = Deck(deckType).shuffle()
+        computerDeck = Deck(deckType).shuffle()
         playerCard = playerDeck.first()
         computerCard = computerDeck.first()
         playerScore = 0
@@ -311,7 +312,7 @@ fun BattleScreen(
 
             // Popup for showing list of remaining cards in deck
             if (isShowingRemainingCards.value) {
-                ShowRemainingCards(playerDeck, noFaceCards, isShowingRemainingCards)
+                ShowRemainingCards(playerDeck, Deck(deckType), isShowingRemainingCards)
             }
         }
     }
