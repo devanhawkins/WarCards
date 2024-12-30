@@ -11,9 +11,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.example.warcards.data.gameModes
 import com.example.warcards.data.noFaceCards
+import com.example.warcards.navigation.RootNavHost
 import com.example.warcards.ui.BattleScreen
+import com.example.warcards.ui.StartScreen
 import com.example.warcards.ui.theme.WarCardsTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,39 +25,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WarCardsTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+
+                val navController = rememberNavController()
+                //StartScreen(navController = navController)
+                RootNavHost(navController = navController)
 
 
-
-                    // For now, start right into the battle screen
-                    val deck = noFaceCards.card.shuffled()
-                    val gameType = gameModes.doubleDeck
-                    BattleScreen(
-                        deck,
-                        gameType,
-                        modifier = Modifier.padding(innerPadding))
-
-
-                }
             }
         }
-    }
-}
-
-
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    WarCardsTheme {
-        Greeting("Android")
     }
 }

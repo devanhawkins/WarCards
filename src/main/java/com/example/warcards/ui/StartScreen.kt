@@ -15,11 +15,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.warcards.data.gameModes
 import com.example.warcards.ui.theme.WarCardsTheme
 
 @Composable
-fun StartScreen(){
+fun StartScreen(navController: NavController = rememberNavController(),
+                navigateToRegularBattle: (String) -> Unit = {},
+                navigateToDoubleDeckBattle: (String) -> Unit = {},
+                navigateToRoleplayBattle: (String) -> Unit = {}
+){
     WarCardsTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             Column(modifier = Modifier
@@ -33,19 +39,19 @@ fun StartScreen(){
                 
                 // Game Mode Buttons
                 // Regular
-                Button(onClick = { /*TODO*/ }) {
+                Button(onClick = { navigateToRegularBattle(gameModes.regular) }) {
                     Text(text = gameModes.regular)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 // Double Deck
-                Button(onClick = { /*TODO*/ }) {
+                Button(onClick = { navigateToDoubleDeckBattle(gameModes.doubleDeck) }) {
                     Text(text = gameModes.doubleDeck)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 // Role play
-                Button(onClick = { /*TODO*/ }) {
+                Button(onClick = { navigateToRoleplayBattle(gameModes.roleplay) }) {
                     Text(text = gameModes.roleplay)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -60,6 +66,7 @@ fun StartScreen(){
 @Preview(showBackground = true)
 fun StartScreenPreview(){
     WarCardsTheme {
-        StartScreen()
+        val navController = rememberNavController()
+        StartScreen(navController)
     }
 }

@@ -36,6 +36,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.warcards.R
 import com.example.warcards.data.Card
 import com.example.warcards.data.CardImage
@@ -43,15 +46,29 @@ import com.example.warcards.data.Deck
 import com.example.warcards.data.Role
 import com.example.warcards.data.gameModes
 import com.example.warcards.data.noFaceCards
+import com.example.warcards.data.regularDeckNoJoker
+import com.example.warcards.navigation.NavigationDestination
 import com.example.warcards.ui.theme.WarCardsTheme
+
+object BattleDestination: NavigationDestination {
+    override val route = "battle"
+    const val mode = "mode"
+    val routeWithArgs = "$route/{$mode}"
+}
 
 @Composable
 fun BattleScreen(
-    deckType: List<Card>,
-    gameType: String,
-    player1Role: Role? = null,
-    player2Role: Role? = null,
-    modifier: Modifier) {
+    navController: NavHostController,
+    gameMode: String
+) {
+
+    // Set-up using data from saved state
+    val deckType = when (gameMode) {
+        "regular" -> regularDeckNoJoker.card
+        "doubleDeck" -> regularDeckNoJoker.card
+        "roleplay" -> noFaceCards.card
+        else -> regularDeckNoJoker.card
+    }
 
     // Variables
     // New decks for the game
@@ -275,7 +292,7 @@ fun BattleScreen(
                     computerDeck.shuffle()
 
                     // Choose start by game type
-                    if (gameType == gameModes.regular){
+                    if (gameMode == gameModes.regular){
                         standardStart()
                     }
                     standardWarTurn()
@@ -359,10 +376,11 @@ fun PreviewBattleScreen() {
 
     WarCardsTheme {
 
+        val navController = rememberNavController()
         BattleScreen(
-            deckType = noFaceCards.card,
-            gameType = "Regular",
-            modifier = Modifier)
+            navController = navController,
+            gameMode = "Regular"
+        )
     }
 
 }
