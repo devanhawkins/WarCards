@@ -1,7 +1,6 @@
-package com.example.warcards.ui.theme
+package com.example.warcards.ui
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -37,21 +35,28 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import com.example.warcards.R
 import com.example.warcards.data.Card
 import com.example.warcards.data.CardImage
 import com.example.warcards.data.Deck
+import com.example.warcards.data.Role
+import com.example.warcards.data.gameModes
 import com.example.warcards.data.noFaceCards
+import com.example.warcards.ui.theme.WarCardsTheme
 
 @Composable
-fun BattleScreen(modifier: Modifier) {
+fun BattleScreen(
+    deckType: List<Card>,
+    gameType: String,
+    player1Role: Role? = null,
+    player2Role: Role? = null,
+    modifier: Modifier) {
 
     // Variables
     // New decks for the game
-    var playerDeck by remember { mutableStateOf(Deck(noFaceCards.card.shuffled())) }
-    var computerDeck by remember { mutableStateOf(Deck(noFaceCards.card.shuffled())) }
+    var playerDeck by remember { mutableStateOf(Deck(deckType).shuffle()) }
+    var computerDeck by remember { mutableStateOf(Deck(deckType).shuffle()) }
 
     // Player cards
     var playerCard by remember { mutableStateOf(playerDeck.first()) }
@@ -79,8 +84,22 @@ fun BattleScreen(modifier: Modifier) {
             drawContinuation = 0
         }
     }
+
+    fun splitDeck(oneDeck: List<Card>) {
+        val half = oneDeck.size / 2
+        val shuffled = oneDeck.shuffled()
+        playerDeck = Deck(shuffled).chunked(half)[0]
+        computerDeck = Deck(shuffled).chunked(half)[1]
+        cardsRemaining = half
+    }
+
+    fun standardStart(){
+        splitDeck(deckType)
+        playerCard = playerDeck.first()
+        computerCard = computerDeck.first()
+    }
     
-    fun turn() {
+    fun standardWarTurn() {
         if (cardsRemaining == 0) {
             isGameOver = true
         }
@@ -94,7 +113,7 @@ fun BattleScreen(modifier: Modifier) {
             computerDeck = computerDeck.drop(1)
 
             // Check who won
-            winner = checkWin(playerCard!!, computerCard!!)
+            winner = checkWin(playerCard, computerCard)
             if (winner == 0) {
                 drawContinuation++
             } else if (winner == 1) {
@@ -248,10 +267,18 @@ fun BattleScreen(modifier: Modifier) {
 
             Button(onClick = {
                 if (hasStarted) {
-                    turn()
+                    standardWarTurn()
                 } else {
+                    // Start game
                     hasStarted = true
-                    turn()
+                    playerDeck.shuffle()
+                    computerDeck.shuffle()
+
+                    // Choose start by game type
+                    if (gameType == gameModes.regular){
+                        standardStart()
+                    }
+                    standardWarTurn()
                 }
             }) {
                 if (hasStarted){
@@ -332,7 +359,10 @@ fun PreviewBattleScreen() {
 
     WarCardsTheme {
 
-        BattleScreen(modifier = Modifier)
+        BattleScreen(
+            deckType = noFaceCards.card,
+            gameType = "Regular",
+            modifier = Modifier)
     }
 
 }

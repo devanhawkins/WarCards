@@ -14,8 +14,11 @@ data class Deck(
     fun drop(n: Int): Deck {
         return Deck(card.drop(n))
     }
-}
 
+    fun chunked(n: Int): List<Deck> {
+        return card.chunked(n).map { Deck(it) }
+    }
+}
 
 val regularDeckWithJoker = Deck(
     listOf(
