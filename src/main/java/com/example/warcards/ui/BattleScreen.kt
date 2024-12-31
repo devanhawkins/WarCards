@@ -83,6 +83,10 @@ fun BattleScreen(
     var playerScore by remember { mutableIntStateOf(0) }
     var computerScore by remember { mutableIntStateOf(0) }
 
+    // Character skills
+    var hasPlayerSkillActivated by remember { mutableStateOf(false) }
+    var hasComputerSkillActivated by remember { mutableStateOf(false) }
+
     // Additional state variables
     // TODO: Fix bug where regular match start off showing remaining cards as 52, not 26.
     var cardsRemaining by remember { mutableIntStateOf(playerDeck.card.size) }
@@ -249,6 +253,48 @@ fun BattleScreen(
                     }
     
                 }
+
+                // Skill row
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(20.dp),
+                    horizontalArrangement = Arrangement.Center
+                ){
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight(1f)
+                            .fillMaxWidth(0.5f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                        if (hasPlayerSkillActivated){
+                            Icon(
+                                imageVector = ImageVector.vectorResource(
+                                    id = R.drawable.baseline_auto_fix_high_24),
+                                contentDescription = "Skill icon")
+                            Text("Skill Activated",
+                                modifier = Modifier.width(IntrinsicSize.Max),
+                                color = Color.Cyan)
+                        }
+                    }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight(1f)
+                            .fillMaxWidth(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                        if (hasComputerSkillActivated){
+                            Icon(
+                                imageVector = ImageVector.vectorResource(
+                                    id = R.drawable.baseline_auto_fix_high_24),
+                                contentDescription = "Skill icon")
+                            Text(text = "Skill Activated",
+                                modifier = Modifier.width(IntrinsicSize.Max),
+                                color = Color.Cyan)
+                        }
+                    }
+
+
+                }
             }
 
             // Scores
@@ -259,6 +305,12 @@ fun BattleScreen(
             // Cards remaining
             Spacer(modifier = Modifier.height(16.dp))
             Text("Cards Remaining: $cardsRemaining")
+
+            // Tie points
+            if (drawContinuation > 0){
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("Tie Points: $drawContinuation")
+            }
 
             // Game over
             if (isGameOver) {
