@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 import com.example.warcards.R
 
 data class Card(
-    val value: Int,
+    var value: Int,
     val name: String,
     val suit: String,
     val isFaceCard: Boolean

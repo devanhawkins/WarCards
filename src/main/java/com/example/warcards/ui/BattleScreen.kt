@@ -45,8 +45,11 @@ import com.example.warcards.data.CardImage
 import com.example.warcards.data.Deck
 import com.example.warcards.data.Role
 import com.example.warcards.data.gameModes
+import com.example.warcards.data.jack
 import com.example.warcards.data.noFaceCards
+import com.example.warcards.data.queen
 import com.example.warcards.data.regularDeckNoJoker
+import com.example.warcards.data.roleRoster
 import com.example.warcards.navigation.NavigationDestination
 import com.example.warcards.ui.theme.WarCardsTheme
 
@@ -83,9 +86,14 @@ fun BattleScreen(
     var playerScore by remember { mutableIntStateOf(0) }
     var computerScore by remember { mutableIntStateOf(0) }
 
-    // Character skills
+    // Characters and  skills
     var hasPlayerSkillActivated by remember { mutableStateOf(false) }
     var hasComputerSkillActivated by remember { mutableStateOf(false) }
+
+    // For now, set roles randomly from roster
+    var playerRole = jack //roleRoster.random()
+    var computerRole = queen //roleRoster.random()
+
 
     // Additional state variables
     // TODO: Fix bug where regular match start off showing remaining cards as 52, not 26.
@@ -93,6 +101,8 @@ fun BattleScreen(
     var isGameOver by remember { mutableStateOf(false) }
     var winner by remember { mutableIntStateOf(0) }
     var drawContinuation by remember { mutableIntStateOf(0) }
+    var playerWinConsecutive by remember { mutableIntStateOf(0) }
+    var computerWinConsecutive by remember { mutableIntStateOf(0) }
     var hasStarted by remember { mutableStateOf(false) }
     var isShowingRemainingCards = remember { mutableStateOf(false) }
 
@@ -115,6 +125,83 @@ fun BattleScreen(
         cardsRemaining = half
     }
 
+    // Jack skill
+    fun winTie(user: String) : Int {
+        if (playerCard.value == computerCard.value){
+            if (user == "player"){
+                hasPlayerSkillActivated = true
+                return playerCard.value + 999
+            } else if(user == "computer"){
+                hasComputerSkillActivated = true
+                return computerCard.value + 999
+            }
+        } else {
+            if (user == "player"){
+                return playerCard.value
+            } else if(user == "computer"){
+                return computerCard.value
+            } else {
+                return -1 // Should not reach this code. If it does, it's a bug
+            }
+        }
+        return -1 // Should not reach this code. If it does, it's a bug
+    }
+
+    // Queen skill
+    fun powerUpWeak(user: String) : Int {
+        if (user == "player" && (
+            playerCard.value == 1 ||
+            playerCard.value == 2 ||
+            playerCard.value == 3)){
+            hasPlayerSkillActivated = true
+            return playerCard.value * 2
+        } else if (user == "computer" && (
+            computerCard.value == 1 ||
+            computerCard.value == 2 ||
+            computerCard.value == 3)){
+            hasComputerSkillActivated = true
+            return computerCard.value * 2
+        }
+        else{
+            if (user == "player"){
+                return playerCard.value
+            } else if(user == "computer"){
+                return computerCard.value
+            } else{
+                return -1 // Should not reach this code. If it does, it's a bug
+            }
+        }
+    }
+
+    // King skill
+    fun acesHigh(user: String) : Int {
+        if (user == "player" && playerCard.value == 1) {
+            hasPlayerSkillActivated = true
+            return playerCard.value + 14
+        } else if (user == "computer" && computerCard.value == 1){
+            hasComputerSkillActivated = true
+            return computerCard.value + 14
+        } else {
+            if (user == "player"){
+                return playerCard.value
+            } else if(user == "computer"){
+                return computerCard.value
+            }
+        }
+        return -1 // Should not reach this code. If it does, it's a bug
+    }
+
+    // Joker skill
+    fun consecutiveWins(user: String) {
+        if (user == "player" && playerWinConsecutive > 0){
+            hasPlayerSkillActivated = true
+            playerScore++
+        } else if (user == "computer" && computerWinConsecutive > 0){
+            hasComputerSkillActivated = true
+            computerScore++
+        }
+    }
+
     fun standardStart(){
         splitDeck(deckType)
         playerCard = playerDeck.first()
@@ -122,6 +209,12 @@ fun BattleScreen(
     }
     
     fun standardWarTurn() {
+
+        // Reset skill activation
+        hasPlayerSkillActivated = false
+        hasComputerSkillActivated = false
+
+        // Check if game ended
         if (cardsRemaining == 0) {
             isGameOver = true
         }
@@ -133,6 +226,25 @@ fun BattleScreen(
 
             computerCard = computerDeck.first()
             computerDeck = computerDeck.drop(1)
+
+            // Check skills
+            if(gameMode == "roleplay"){
+                // Player skill
+                when (playerRole.name) {
+                    "Jack" -> playerCard.value = winTie("player")
+                    "Queen" -> playerCard.value = powerUpWeak("player")
+                    "King" -> playerCard.value = acesHigh("player")
+                    "Joker" -> consecutiveWins("player")
+                }
+
+                // Computer skill
+                when (computerRole.name) {
+                    "Jack" -> computerCard.value = winTie("computer")
+                    "Queen" -> computerCard.value = powerUpWeak("computer")
+                    "King" -> computerCard.value = acesHigh("computer")
+                    "Joker" -> consecutiveWins("computer")
+                }
+            }
 
             // Check who won
             winner = checkWin(playerCard, computerCard)
@@ -166,9 +278,16 @@ fun BattleScreen(
         winner = 0
         hasStarted = false
         drawContinuation = 0
+        hasPlayerSkillActivated = false
+        hasComputerSkillActivated = false
+        playerWinConsecutive = 0
+        computerWinConsecutive = 0
+        playerRole = roleRoster.random()
+        computerRole = roleRoster.random()
     }
     
 
+    // UI
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -177,9 +296,36 @@ fun BattleScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Player cards
+
+            // Display roles, if in roleplay mode
+            if(gameMode == "roleplay"){
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(20.dp),
+                    horizontalArrangement = Arrangement.Center) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight(1f)
+                            .fillMaxWidth(0.5f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("Player Role: ${playerRole.name}")
+                    }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight(1f)
+                            .fillMaxWidth(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                        Text("Computer Role: ${computerRole.name}")
+                    }
+                }
+
+            }
 
             if (hasStarted) {
+
+                // Winner icon row
                 Row(modifier = Modifier
                     .fillMaxWidth()
                     .height(20.dp),
@@ -216,6 +362,8 @@ fun BattleScreen(
                         }
                     }
                 }
+
+                // Cards
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -270,10 +418,12 @@ fun BattleScreen(
                             Icon(
                                 imageVector = ImageVector.vectorResource(
                                     id = R.drawable.baseline_auto_fix_high_24),
-                                contentDescription = "Skill icon")
+                                contentDescription = "Skill icon",
+                                tint = Color.Red
+                            )
                             Text("Skill Activated",
                                 modifier = Modifier.width(IntrinsicSize.Max),
-                                color = Color.Cyan)
+                                color = Color.Red)
                         }
                     }
                     Column(
@@ -286,10 +436,12 @@ fun BattleScreen(
                             Icon(
                                 imageVector = ImageVector.vectorResource(
                                     id = R.drawable.baseline_auto_fix_high_24),
-                                contentDescription = "Skill icon")
+                                contentDescription = "Skill icon",
+                                tint = Color.Red
+                            )
                             Text(text = "Skill Activated",
                                 modifier = Modifier.width(IntrinsicSize.Max),
-                                color = Color.Cyan)
+                                color = Color.Red)
                         }
                     }
 
